@@ -1,9 +1,10 @@
-# Dumb Language - v0.01
-# (c) 2011 darkf
+# possum lang - v0.01
+# copyright (c) 2011 darkf
 # released under the MIT license
 #
 # meant to be a semi-esoteric language
-# it's basically just a lisp with fixed-arity functions and implicit grouping
+# it's basically just a small subset of lisp
+# with fixed-arity functions and implicit grouping
 #
 # e.g.
 # print minus plus plus 1 5 3 1
@@ -18,12 +19,14 @@
 # - add typechecking and signatures
 # - diagnostics
 # - stdlib
+# - at least somewhat verify correctness
+# - modules (or at least including)
 # - unit tests
 # - clean up code (heh, yeah right)
 # - document code (hah, hah-hah...)
 
 #TEST_STRING = 'print minus plus plus 1 5 3 1'
-#TEST_STRING = 'print if true "dicks" "no"'
+#TEST_STRING = 'print if true "yes" "no"'
 TEST_STRING = 'print car cdr cdr cons 1 cons 2 cons 3 cons 4 cons 5 nil'
 
 class StringNode:
