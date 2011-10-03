@@ -1,0 +1,26 @@
+possum lang - v0.01
+copyright (c) 2011 darkf
+released under the MIT license
+
+meant to be a semi-esoteric language
+it's basically just a small subset of lisp
+with fixed-arity functions and implicit grouping
+
+e.g.
+print minus plus plus 1 5 3 1
+is like
+(print (minus (plus (plus 1 5) 3) 1))
+
+TODO:
+- add function definition
+- make python function definitions infer arity
+- actually parse strings
+- make parser work with multiple toplevel statements
+- add typechecking and signatures
+- diagnostics
+- stdlib
+- at least somewhat verify correctness
+- modules (or at least including)
+- unit tests
+- clean up code (heh, yeah right)
+- document code (hah, hah-hah...)
