@@ -11,7 +11,6 @@
 # (print (minus (plus (plus 1 5) 3) 1))
 #
 # TODO:
-# - add nil type
 # - add function definition
 # - make python function definitions infer arity
 # - actually parse strings
@@ -24,7 +23,8 @@
 # - document code (hah, hah-hah...)
 
 #TEST_STRING = 'print minus plus plus 1 5 3 1'
-TEST_STRING = 'print if true "dicks" "no"'
+#TEST_STRING = 'print if true "dicks" "no"'
+TEST_STRING = 'print car cdr cdr cons 1 cons 2 cons 3 cons 4 cons 5 nil'
 
 class StringNode:
   def __init__(self, value):
@@ -37,6 +37,14 @@ class IntNode:
 class BoolNode:
   def __init__(self, value):
     self.value = value
+    
+class ListNode:
+  def __init__(self, value):
+    self.value = value
+    
+class NilNode:
+  def __init__(self):
+    self.value = None
     
 class AtomNode:
   def __init__(self, value):
@@ -66,6 +74,8 @@ def parse(text):
       except ValueError:
         if isbool(t):
           out.append(BoolNode(parsebool(t)))
+        elif t.lower() == "nil":
+          out.append(NilNode())
         else:
           out.append(AtomNode(t))
   return out
@@ -88,6 +98,10 @@ def unbox(x):
     return x.value
   if isinstance(x, BoolNode):
     return x.value
+  if isinstance(x, ListNode):
+    return x.value
+  if isinstance(x, NilNode):
+    return x.value
   
   print "fixme: shouldn't be here either?"
   
@@ -98,6 +112,10 @@ def box(x):
     return StringNode(x)
   if type(x) == bool:
     return BoolNode(x)
+  if type(x) == list:
+    return ListNode(x)
+  if x is None:
+    return NilNode()
   print "fixme: don't know what to box (%r)" % x
   return None
   
@@ -115,12 +133,25 @@ def _if(c,t,e):
     return t
   return e
 def _rtrue(): return True
+def _cons(x,y):
+  print "cons: x=%r y=%r" % (x,y)
+  if y is None:
+    return [x] + [None]
+  #return [x]+[y]
+  return [x] + [y]
+def _car(x):
+  return x[0]
+def _cdr(x):
+  return x[1]
 
 sym = {"print": Function("print", 1, _print),
        "plus": Function("+", 2, _plus),
        "minus": Function("-", 2, _minus),
        "if": Function("if", 3, _if),
-       "ret_true": Function("ret_true", 0, _rtrue)}
+       "ret_true": Function("ret_true", 0, _rtrue),
+       "cons": Function("cons", 2, _cons),
+       "car": Function("car", 1, _car),
+       "cdr": Function("cdr", 1, _cdr)}
        
 class Consumer:
   def __init__(self, toks):
