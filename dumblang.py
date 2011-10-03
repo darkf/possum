@@ -195,21 +195,8 @@ def evalArg(tc):
   if isinstance(t, AtomNode):
     # assume fcall
     return do_fcall(tc, t.value)
-    
-  if isinstance(t, IntNode):
-    return t
-    
-  if isinstance(t, StringNode):
-    return t
-    
-  if isinstance(t, BoolNode):
-    return t
-    
-  if isinstance(t, ListNode):
-    return t
-    
-  if isinstance(t, NilNode):
-    return t
+  
+  return t
     
 def evalArgs(tc, arity):
   out = []
