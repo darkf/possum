@@ -23,13 +23,18 @@
 # - clean up code (heh, yeah right)
 # - document code (hah, hah-hah...)
 
-TEST_STRING = 'print minus plus plus 1 5 3 1'
+#TEST_STRING = 'print minus plus plus 1 5 3 1'
+TEST_STRING = 'print if true "dicks" "no"'
 
 class StringNode:
   def __init__(self, value):
     self.value = value
     
 class IntNode:
+  def __init__(self, value):
+    self.value = value
+    
+class BoolNode:
   def __init__(self, value):
     self.value = value
     
@@ -59,8 +64,19 @@ def parse(text):
       try:
         out.append(IntNode(int(t)))
       except ValueError:
-        out.append(AtomNode(t))
+        if isbool(t):
+          out.append(BoolNode(parsebool(t)))
+        else:
+          out.append(AtomNode(t))
   return out
+  
+def parsebool(x):
+  if x.lower() == "true":
+    return True
+  return False
+  
+def isbool(x):
+  return x.lower() == "true" or x.lower() == "false"
   
 def unbox(x):
   if isinstance(x, IntNode):
@@ -70,7 +86,9 @@ def unbox(x):
   if isinstance(x, AtomNode):
     print "fixme: shouldn't be here?"
     return x.value
-    
+  if isinstance(x, BoolNode):
+    return x.value
+  
   print "fixme: shouldn't be here either?"
   
 def box(x):
@@ -78,6 +96,8 @@ def box(x):
     return IntNode(x)
   if type(x) == str:
     return StringNode(x)
+  if type(x) == bool:
+    return BoolNode(x)
   print "fixme: don't know what to box (%r)" % x
   return None
   
@@ -90,10 +110,17 @@ def _plus(x,y):
   return x+y
 def _minus(x,y):
   return x-y
+def _if(c,t,e):
+  if c == True:
+    return t
+  return e
+def _rtrue(): return True
 
 sym = {"print": Function("print", 1, _print),
        "plus": Function("+", 2, _plus),
-       "minus": Function("-", 2, _minus)}
+       "minus": Function("-", 2, _minus),
+       "if": Function("if", 3, _if),
+       "ret_true": Function("ret_true", 0, _rtrue)}
        
 class Consumer:
   def __init__(self, toks):
@@ -148,6 +175,9 @@ def evalArg(tc):
   if isinstance(t, StringNode):
     return t
     
+  if isinstance(t, BoolNode):
+    return t
+    
 def evalArgs(tc, arity):
   out = []
   for i in range(arity):
@@ -164,8 +194,10 @@ def eval(tc):
       # assume fcall
       tc.consume()
       do_fcall(tc, t.value)
-    if t is None:
+    elif t is None:
       break
+    else:
+      print "top-level token that isn't an atom, panic (%r)" % t
         
 def main():
   tc = Consumer(parse(TEST_STRING))
