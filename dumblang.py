@@ -103,7 +103,7 @@ def unbox(x):
   if isinstance(x, NilNode):
     return x.value
   
-  print "fixme: shouldn't be here either?"
+  print "fixme: shouldn't be here either? (unbox %r)" % x
   
 def box(x):
   if type(x) == int:
@@ -134,10 +134,6 @@ def _if(c,t,e):
   return e
 def _rtrue(): return True
 def _cons(x,y):
-  print "cons: x=%r y=%r" % (x,y)
-  if y is None:
-    return [x] + [None]
-  #return [x]+[y]
   return [x] + [y]
 def _car(x):
   return x[0]
@@ -207,6 +203,12 @@ def evalArg(tc):
     return t
     
   if isinstance(t, BoolNode):
+    return t
+    
+  if isinstance(t, ListNode):
+    return t
+    
+  if isinstance(t, NilNode):
     return t
     
 def evalArgs(tc, arity):
