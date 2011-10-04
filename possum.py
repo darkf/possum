@@ -27,7 +27,8 @@
 
 #TEST_STRING = 'print minus plus plus 1 5 3 1'
 #TEST_STRING = 'print if true "yes" "no"'
-TEST_STRING = 'print car cdr cdr cons 1 cons 2 cons 3 cons 4 cons 5 nil'
+#TEST_STRING = 'print car cdr cdr cons 1 cons 2 cons 3 cons 4 cons 5 nil'
+TEST_STRING = 'print set "x" 5'
 
 class StringNode:
   def __init__(self, value):
@@ -52,12 +53,6 @@ class NilNode:
 class AtomNode:
   def __init__(self, value):
     self.value = value
-    
-class CallNode:
-  def __init__(self, atom, args):
-    self.atom = atom
-    self.args = args
-    self.arity = len(args)
     
 class Function:
   def __init__(self, atom, arity, fn):
@@ -107,6 +102,7 @@ def unbox(x):
   print "fixme: shouldn't be here either? (unbox %r)" % x
   
 def box(x):
+  # XXX: if it's already boxed, we'll fall through
   if type(x) == int:
     return IntNode(x)
   if type(x) == str:
@@ -123,21 +119,24 @@ def box(x):
 def _print(x):
   'string->int'
   print ":", x
-def _plus(x,y):
+def _plus(x, y):
   'int,int->int'
   return x + y
-def _minus(x,y):
+def _minus(x, y):
   return x - y
-def _if(c,t,e):
+def _if(c, t, e):
   if c == True:
     return t
   return e
-def _cons(x,y):
+def _cons(x, y):
   return [x] + [y]
 def _car(x):
   return x[0]
 def _cdr(x):
   return x[1]
+def _set(x, y):
+  sym[x] = box(y)
+  return y
 
 sym = {"print": Function("print", 1, _print),
        "plus": Function("+", 2, _plus),
@@ -145,7 +144,8 @@ sym = {"print": Function("print", 1, _print),
        "if": Function("if", 3, _if),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
-       "cdr": Function("cdr", 1, _cdr)}
+       "cdr": Function("cdr", 1, _cdr),
+       "set": Function("set", 2, _set)}
        
 class Consumer:
   def __init__(self, toks):
@@ -220,6 +220,7 @@ def eval(tc):
 def main():
   tc = Consumer(parse(TEST_STRING))
   eval(tc)
+  print "sym:", sym
         
 if __name__ == '__main__':
   main()
