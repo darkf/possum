@@ -24,6 +24,12 @@
 # - unit tests
 # - clean up code (heh, yeah right)
 # - document code (hah, hah-hah...)
+#
+# Open questions:
+# - should operators use symbols or names? (e.g. + - / or plus minus div)
+# - should we have an atom quote operator?
+#   (e.g. 'x which returns an atom rather than the value of x)
+#   so we could do stuff like set 'x 5 rather than set "x" 5
 
 #TEST_STRING = 'print minus plus plus 1 5 3 1'
 #TEST_STRING = 'print if true "yes" "no"'
@@ -220,7 +226,6 @@ def eval(tc):
 def main():
   tc = Consumer(parse(TEST_STRING))
   eval(tc)
-  print "sym:", sym
         
 if __name__ == '__main__':
   main()
