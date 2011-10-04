@@ -84,9 +84,7 @@ def parse(text):
   return out
   
 def parsebool(x):
-  if x.lower() == "true":
-    return True
-  return False
+  return x.lower() == "true"
   
 def isbool(x):
   return x.lower() == "true" or x.lower() == "false"
@@ -125,17 +123,15 @@ def box(x):
 def _print(x):
   'string->int'
   print ":", x
-  return 1337
 def _plus(x,y):
   'int,int->int'
-  return x+y
+  return x + y
 def _minus(x,y):
-  return x-y
+  return x - y
 def _if(c,t,e):
   if c == True:
     return t
   return e
-def _rtrue(): return True
 def _cons(x,y):
   return [x] + [y]
 def _car(x):
@@ -147,7 +143,6 @@ sym = {"print": Function("print", 1, _print),
        "plus": Function("+", 2, _plus),
        "minus": Function("-", 2, _minus),
        "if": Function("if", 3, _if),
-       "ret_true": Function("ret_true", 0, _rtrue),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr)}
