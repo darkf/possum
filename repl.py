@@ -15,6 +15,9 @@ def main():
       break
     
     try:
+      # XXX: need a way to pretty-print values
+      #x = "# %r" % evalString(text)
+      #print x
       evalString(text)
     except Exception, e:
       print "<error> %r" % e

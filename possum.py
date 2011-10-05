@@ -214,13 +214,9 @@ def evalConsumer(tc):
   
   while True:
     t = tc.peek()
-    if isinstance(t, AtomNode):
-      r = evalArg(tc)
-    elif t is None:
+    if t is None:
       break
-    else:
-      print "top-level token that isn't an atom, panic (%r)" % t
-      raise Exception()
+    r = evalArg(tc)
   return r
   
 def evalString(text):
