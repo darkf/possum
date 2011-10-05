@@ -34,8 +34,9 @@
 #TEST_STRING = 'print minus plus plus 1 5 3 1'
 #TEST_STRING = 'print if true "yes" "no"'
 #TEST_STRING = 'print car cdr cdr cons 1 cons 2 cons 3 cons 4 cons 5 nil'
-TEST_STRING = 'print set "x" 5'
+TEST_STRING = 'set "x" 123 print x'
 
+# XXX: should be one top-level Node class
 class StringNode:
   def __init__(self, value):
     self.value = value
@@ -197,8 +198,18 @@ def evalArg(tc):
   t = tc.consume()
   
   if isinstance(t, AtomNode):
-    # assume fcall
-    return do_fcall(tc, t.value)
+    # we look up the atom in the symbol table,
+    # and if it's a function, call it, otherwise return its value.
+    val = lookup(t.value)
+    if val is None:
+      print "<BindingError> no such binding '%s'" % t.value
+      raise Exception()
+    
+    if isinstance(val, Function):
+      # function -- call it
+      return do_fcall(tc, t.value)
+    # otherwise it's a variable, return its value
+    return val
   
   return t
     
@@ -215,13 +226,12 @@ def eval(tc):
   while True:
     t = tc.peek()
     if isinstance(t, AtomNode):
-      # assume fcall
-      tc.consume()
-      do_fcall(tc, t.value)
+      out.append(evalArg(tc))
     elif t is None:
       break
     else:
       print "top-level token that isn't an atom, panic (%r)" % t
+      raise Exception()
         
 def main():
   tc = Consumer(parse(TEST_STRING))
