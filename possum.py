@@ -174,12 +174,8 @@ class Consumer:
 def lookup(x):
   return sym.get(x, None)
     
-def do_fcall(tc, atom):
-  fn = lookup(atom)
-  if fn is None:
-    print "no function '%s'" % atom
-    raise Exception()
-    
+def do_call_func(tc, fn):
+  # XXX: typechecking stuff if necessary
   #sig = fn.fn.__doc__
   #t_in, t_out = sig.split("->")
   #t_in = t_in.split(",")
@@ -207,7 +203,7 @@ def evalArg(tc):
     
     if isinstance(val, Function):
       # function -- call it
-      return do_fcall(tc, t.value)
+      return do_call_func(tc, val)
     # otherwise it's a variable, return its value
     return val
   
