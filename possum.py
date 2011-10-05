@@ -15,7 +15,6 @@
 # - add function definition
 # - make python function definitions infer arity
 # - actually parse strings
-# - make parser work with multiple toplevel statements
 # - add typechecking and signatures
 # - diagnostics
 # - stdlib
@@ -30,11 +29,6 @@
 # - should we have an atom quote operator?
 #   (e.g. 'x which returns an atom rather than the value of x)
 #   so we could do stuff like set 'x 5 rather than set "x" 5
-
-#TEST_STRING = 'print minus plus plus 1 5 3 1'
-#TEST_STRING = 'print if true "yes" "no"'
-#TEST_STRING = 'print car cdr cdr cons 1 cons 2 cons 3 cons 4 cons 5 nil'
-TEST_STRING = 'set "x" 123 print x'
 
 # XXX: should be one top-level Node class
 class StringNode:
@@ -215,23 +209,19 @@ def evalArgs(tc, arity):
     out.append(evalArg(tc))
   return out
   
-def eval(tc):
-  out = []
-  i = 0
+def evalConsumer(tc):
+  r = None
   
   while True:
     t = tc.peek()
     if isinstance(t, AtomNode):
-      out.append(evalArg(tc))
+      r = evalArg(tc)
     elif t is None:
       break
     else:
       print "top-level token that isn't an atom, panic (%r)" % t
       raise Exception()
-        
-def main():
-  tc = Consumer(parse(TEST_STRING))
-  eval(tc)
-        
-if __name__ == '__main__':
-  main()
+  return r
+  
+def evalString(text):
+  return evalConsumer(Consumer(parse(text)))
