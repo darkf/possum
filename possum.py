@@ -138,15 +138,47 @@ def _cdr(x):
 def _set(x, y):
   sym[x] = box(y)
   return y
+  
+class Environment:
+  def __init__(self, sym={}, prev=None):
+    self.sym = sym
+    self.prev = prev
+    
+  def lookup(self, sym):
+    if self.sym.has_key(sym):
+      return self.sym[sym]
+    
+    # recursively look up to parent scopes
+    if self.prev is not None:
+      return self.prev.lookup(sym)
+    
+    # we're at the top of the scope and it hasn't been found, let's just fail
+    return None
+    
+  def set(self, sym, val):
+    if self.lookup(sym) != None:
+      self.sym[sym] = val
+      return val
+      
+    if self.prev is not None:
+      return self.prev.set(sym, val)
+      
+    return None
+    
+  def setlocal(self, sym, val):
+    self.sym[sym] = val
+    return val
 
-sym = {"print": Function("print", 1, _print),
+sym_global = Environment({"print": Function("print", 1, _print),
        "plus": Function("+", 2, _plus),
        "minus": Function("-", 2, _minus),
        "if": Function("if", 3, _if),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
-       "set": Function("set", 2, _set)}
+       "set": Function("set", 2, _set)})
+       
+sym_current = sym_global
        
 class Consumer:
   def __init__(self, toks):
@@ -164,9 +196,6 @@ class Consumer:
     r = self.toks[self.index]
     self.index += 1
     return r
-    
-def lookup(x):
-  return sym.get(x, None)
     
 def do_call_func(tc, fn):
   # XXX: typechecking stuff if necessary
