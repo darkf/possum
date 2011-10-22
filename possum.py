@@ -136,8 +136,24 @@ def _car(x):
 def _cdr(x):
   return x[1]
 def _set(x, y):
-  sym[x] = box(y)
-  return y
+  set(x, box(y))
+def _enter():
+  enterScope()
+def _leave():
+  leaveScope()
+def _printsym(d=0, sym=None):
+  if d == 0:
+    print "symbols:"
+    
+  if sym is None:
+    sym = sym_current
+    
+  print "[%d]" % d
+  for k,v in sym.sym.iteritems():
+    print "%s: %r" % (k, v)
+  
+  if sym.prev is not None:
+    _printsym(d+1, sym.prev)
   
 class Environment:
   def __init__(self, sym={}, prev=None):
@@ -157,13 +173,14 @@ class Environment:
     
   def set(self, sym, val):
     if self.lookup(sym) != None:
-      self.sym[sym] = val
-      return val
-      
-    if self.prev is not None:
-      return self.prev.set(sym, val)
-      
-    return None
+      if self.sym.has_key(sym):
+        self.sym[sym] = val
+        return val
+      if self.prev is not None:
+        return self.prev.set(sym, val)
+     
+    self.sym[sym] = val
+    return val
     
   def setlocal(self, sym, val):
     self.sym[sym] = val
@@ -176,9 +193,32 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
-       "set": Function("set", 2, _set)})
+       "set": Function("set", 2, _set),
+       "enter": Function("enter", 0, _enter),
+       "leave": Function("leave", 0, _leave),
+       "printsym": Function("printsym", 0, _printsym)})
        
 sym_current = sym_global
+
+def lookup(sym):
+  return sym_current.lookup(sym)
+  
+def set(sym, val):
+  return sym_current.set(sym, val)
+  
+def setlocal(sym, val):
+  return sym_current.setlocal(sym, val)
+  
+def enterScope():
+  global sym_current
+  print "<entering scope>"
+  sym = Environment(prev=sym_current)
+  sym_current = sym
+  
+def leaveScope():
+  global sym_current
+  print "<leaving scope>"
+  sym_current = sym_current.prev
        
 class Consumer:
   def __init__(self, toks):
@@ -224,10 +264,15 @@ def do_lambda(tc):
     print "<TypeError> first argument to lambda must be an integer"
     raise Exception()
   
-  args = evalArgs(tc, n)
-  for arg in args:
-    sym[arg.value] = ""
-    # todo: finish
+  print "args:", n.value
+  #args = evalArgs(tc, n.value)
+  #enterScope()
+  #for arg in args:
+  #  setlocal(arg.value, StringValue("dicks"))
+  
+  print "x =", lookup("x")
+  # todo: finish
+  #body = 
     
 def evalArg(tc):
   t = tc.consume()
