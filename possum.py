@@ -183,11 +183,29 @@ def do_call_func(tc, fn):
   args_unboxed = map(unbox, args)
   
   return box( fn.fn(*args_unboxed) )
+  
+def do_lambda(tc):
+  # hit a lambda special-form
+  # form: lambda 2 x y * x y
+  # which is the same as the s-expr (lambda (x y) (* x y))
+  # (2 is the number of arguments to consume)
+  
+  n = evalArg(tc)
+  if not isinstance(n, IntNode):
+    print "<TypeError> first argument to lambda must be an integer"
+    raise Exception()
+  
+  args = evalArgs(tc, n)
+  for arg in args:
+    sym[arg.value] = ""
+    # todo: finish
     
 def evalArg(tc):
   t = tc.consume()
   
   if isinstance(t, AtomNode):
+    if t.value == "lambda":
+      return do_lambda(tc)
     # we look up the atom in the symbol table,
     # and if it's a function, call it, otherwise return its value.
     val = lookup(t.value)

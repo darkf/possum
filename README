@@ -15,7 +15,6 @@ TODO:
 - add function definition
 - make python function definitions infer arity
 - actually parse strings
-- make parser work with multiple toplevel statements
 - add typechecking and signatures
 - diagnostics
 - stdlib
