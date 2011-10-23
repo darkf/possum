@@ -17,7 +17,7 @@ def main():
     
     try:
       # XXX: need a way to pretty-print values
-      evalString(text)
+      print "= %r" % evalString(text).value
     except Exception, e:
       traceback.print_exc(file=sys.stdout)
 
