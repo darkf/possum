@@ -178,10 +178,12 @@ class Environment:
     return val
     
 class Call:
-  def __init__(self, fun, args, locals={}):
+  def __init__(self, fun, args, locals=None):
     global sym_global
     self.fun = fun
     self.args = args
+    if locals is None:
+      locals = {}
     self.env = Environment(locals, prev=sym_global)
 
 sym_global = Environment({"print": Function("print", 1, _print),
