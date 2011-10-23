@@ -99,6 +99,8 @@ def unbox(x):
     return x.value
   if isinstance(x, NilNode):
     return x.value
+  if isinstance(x, Function):
+    return x
   
   print "fixme: shouldn't be here either? (unbox %r)" % x
   
@@ -112,6 +114,8 @@ def box(x):
     return BoolNode(x)
   if type(x) == list:
     return ListNode(x)
+  if isinstance(x, Function):
+    return x
   if x is None:
     return NilNode()
   print "fixme: don't know what to box (%r)" % x
@@ -136,17 +140,17 @@ def _car(x):
 def _cdr(x):
   return x[1]
 def _set(x, y):
-  set(x, box(y))
-def _enter():
-  enterScope()
-def _leave():
-  leaveScope()
+  global sym_global, callstack
+  if len(callstack) > 1:
+    callstack[-2].env.set(x, box(y))
+  else:
+    sym_global.set(x, box(y))
 def _printsym(d=0, sym=None):
   if d == 0:
     print "symbols:"
     
   if sym is None:
-    sym = sym_current
+    sym = peekCallEnv()
     
   print "[%d]" % d
   for k,v in sym.sym.iteritems():
@@ -172,19 +176,15 @@ class Environment:
     return None
     
   def set(self, sym, val):
-    if self.lookup(sym) != None:
-      if self.sym.has_key(sym):
-        self.sym[sym] = val
-        return val
-      if self.prev is not None:
-        return self.prev.set(sym, val)
-     
     self.sym[sym] = val
     return val
     
-  def setlocal(self, sym, val):
-    self.sym[sym] = val
-    return val
+class Call:
+  def __init__(self, fun, args, locals={}):
+    global sym_global
+    self.fun = fun
+    self.args = args
+    self.env = Environment(locals, prev=sym_global)
 
 sym_global = Environment({"print": Function("print", 1, _print),
        "plus": Function("+", 2, _plus),
@@ -194,31 +194,29 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
        "set": Function("set", 2, _set),
-       "enter": Function("enter", 0, _enter),
-       "leave": Function("leave", 0, _leave),
        "printsym": Function("printsym", 0, _printsym)})
        
-sym_current = sym_global
+callstack = []
 
 def lookup(sym):
-  return sym_current.lookup(sym)
+  return peekCallEnv().lookup(sym)
   
 def set(sym, val):
-  return sym_current.set(sym, val)
+  return peekCallEnv().set(sym, val)
   
-def setlocal(sym, val):
-  return sym_current.setlocal(sym, val)
+def pushCall(call):
+  global callstack
+  callstack.append(call)
   
-def enterScope():
-  global sym_current
-  print "<entering scope>"
-  sym = Environment(prev=sym_current)
-  sym_current = sym
+def popCallEnv():
+  global callstack
+  return callstack.pop().env
   
-def leaveScope():
-  global sym_current
-  print "<leaving scope>"
-  sym_current = sym_current.prev
+def peekCallEnv():
+  global callstack, sym_global
+  if len(callstack) >  0:
+    return callstack[-1].env
+  return sym_global
        
 class Consumer:
   def __init__(self, toks):
@@ -251,7 +249,10 @@ def do_call_func(tc, fn):
   # unbox args
   args_unboxed = map(unbox, args)
   
-  return box( fn.fn(*args_unboxed) )
+  pushCall(Call(fn, args))
+  r = box( fn.fn(*args_unboxed) )
+  popCallEnv()
+  return r
   
 def do_lambda(tc):
   # hit a lambda special-form
@@ -265,14 +266,18 @@ def do_lambda(tc):
     raise Exception()
   
   print "args:", n.value
-  #args = evalArgs(tc, n.value)
-  #enterScope()
-  #for arg in args:
-  #  setlocal(arg.value, StringValue("dicks"))
+  args = consumeArgs(tc, n.value)
+
+  # create closure to execute function
+  def _fn(*fnargs):
+    for arg in args:
+      set(arg.value, StringNode("dicks"))
+    print "_fn:"
+    print " ", fnargs
+    return None
   
-  print "x =", lookup("x")
-  # todo: finish
-  #body = 
+  fn = Function("<lambda>", n.value, _fn)
+  return fn
     
 def evalArg(tc):
   t = tc.consume()
@@ -299,6 +304,21 @@ def evalArgs(tc, arity):
   out = []
   for i in range(arity):
     out.append(evalArg(tc))
+  return out
+
+def consumeArg(tc):
+  t = tc.consume()
+  
+  if isinstance(t, AtomNode):
+    return t
+  else:
+    print "<consumeArg: returning>"
+    return t
+  
+def consumeArgs(tc, arity):
+  out = []
+  for i in range(arity):
+    out.append(consumeArg(tc))
   return out
   
 def evalConsumer(tc):
