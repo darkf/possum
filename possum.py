@@ -91,7 +91,6 @@ def unbox(x):
   if isinstance(x, StringNode):
     return x.value
   if isinstance(x, AtomNode):
-    #print "fixme: shouldn't be here?"
     raise Exception("<unbox> shouldn't be here (was passed an atom)")
   if isinstance(x, BoolNode):
     return x.value
@@ -103,7 +102,6 @@ def unbox(x):
     return x
   
   raise Exception("<InternalError> fixme: shouldn't be here either? (unbox %r)" % x)
-  raise Exception()
   
 def box(x):
   # XXX: if it's already boxed, we'll fall through
@@ -240,10 +238,8 @@ def do_call_func(tc, fn):
   #sig = fn.fn.__doc__
   #t_in, t_out = sig.split("->")
   #t_in = t_in.split(",")
-  print "calling %s with %d args" % (fn.atom, fn.arity)
-  #print "tc:", tc.toks[tc.index:]
+  #print "calling %s with %d args" % (fn.atom, fn.arity)
   args = evalArgs(tc, fn.arity)
-  print "args:", args
   
   # unbox args
   args_unboxed = map(unbox, args)
@@ -274,12 +270,14 @@ def do_lambda(tc):
       set(arg.value, fnargs[i])
     print "_fn:", list(fnargs)
     print "body:", body
-    return evalTokens(Consumer(body))
+    return unbox(evalTokens(Consumer(body)))
   
   fn = Function("<lambda>", n.value, _fn)
   return fn
     
-def evalToken(tc, t):
+def evalToken(tc):
+  t = tc.consume()
+  
   if isinstance(t, AtomNode):
     if t.value == "lambda":
       return do_lambda(tc)
@@ -303,11 +301,11 @@ def evalTokens(tc):
     t = tc.peek()
     if t is None:
       break
-    r = evalToken(tc, t)
+    r = evalToken(tc)
   return r
     
 def evalArg(tc):
-  return evalToken(tc, tc.consume())
+  return evalToken(tc)
     
 def evalArgs(tc, arity):
   out = []
@@ -320,6 +318,7 @@ def consumeArg(tc):
   if isinstance(t, AtomNode):
     val = lookup(t.value)
     if val is None:
+      # not a known function, so assume it's not one and return the atom
       return t
     
     if isinstance(val, Function):
