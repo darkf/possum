@@ -269,13 +269,44 @@ def do_lambda(tc):
     return unbox(evalTokens(Consumer(body)))
   
   return Function("<lambda>", n.value, _fn)
+  
+def do_cond(tc):
+  # cond special-form
+  # form: cond 2 value "value one" "you chose value 1" else "you didn't choose 1 or 2"
+  # which is like (cond value ["value one" "you chose value 1"] [else "you didn't choose 1 or 2"])
+  
+  n = evalArg(tc)
+  if not isinstance(n, IntNode):
+    raise Exception("<TypeError> first argument to cond must be an integer")
+    
+  val = evalArg(tc)
+  for i in range(n.value):
+    if isinstance(tc.peek(), AtomNode) and tc.peek().value == "else":
+      tc.consume()
+      return evalArg(tc)
+      
+    t = evalArg(tc)
+      
+    if t.value == val.value:
+      r = evalArg(tc)
+      # consume everything that wasn't matched after this
+      consumeArgs(tc, (n.value-i)*2)
+      return r
+    else:
+      tc.consume() # do nothing with it
+      
+  return box(None)
     
 def evalArg(tc):
   t = tc.consume()
   
   if isinstance(t, AtomNode):
+    # evaluate special-forms
     if t.value == "lambda":
       return do_lambda(tc)
+    if t.value == "cond":
+      return do_cond(tc)
+      
     # we look up the atom in the symbol table,
     # and if it's a function, call it, otherwise return its value.
     val = lookup(t.value)
