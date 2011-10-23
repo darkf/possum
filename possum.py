@@ -265,7 +265,7 @@ def do_lambda(tc):
   # create closure to execute function
   def _fn(*fnargs):
     for i,arg in enumerate(args):
-      set(arg.value, fnargs[i])
+      set(arg.value, box(fnargs[i]))
     return unbox(evalTokens(Consumer(body)))
   
   return Function("<lambda>", n.value, _fn)
