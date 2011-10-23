@@ -240,8 +240,10 @@ def do_call_func(tc, fn):
   #sig = fn.fn.__doc__
   #t_in, t_out = sig.split("->")
   #t_in = t_in.split(",")
-    
+  print "calling %s with %d args" % (fn.atom, fn.arity)
+  print "tc:", tc.toks[tc.index:]
   args = evalArgs(tc, fn.arity)
+  print "args:", args
   
   #for arg in args:
   #  if 
@@ -267,21 +269,23 @@ def do_lambda(tc):
   
   print "args:", n.value
   args = consumeArgs(tc, n.value)
+  
+  body = consumeArgs(tc, 1)
+  
+  print "def body:", body
 
   # create closure to execute function
   def _fn(*fnargs):
     for i,arg in enumerate(args):
       set(arg.value, fnargs[i])
-    print "_fn:"
-    _printsym()
-    return None
+    print "_fn:", fnargs
+    print "body:", body
+    return evalTokens(Consumer(body))
   
   fn = Function("<lambda>", n.value, _fn)
   return fn
     
-def evalArg(tc):
-  t = tc.consume()
-  
+def evalToken(tc, t):
   if isinstance(t, AtomNode):
     if t.value == "lambda":
       return do_lambda(tc)
@@ -299,6 +303,18 @@ def evalArg(tc):
     return val
   
   return t
+  
+def evalTokens(tc):
+  r = None
+  while True:
+    t = tc.peek()
+    if t is None:
+      break
+    r = evalToken(tc, t)
+  return r
+    
+def evalArg(tc):
+  return evalToken(tc, tc.consume())
     
 def evalArgs(tc, arity):
   out = []
@@ -308,17 +324,27 @@ def evalArgs(tc, arity):
 
 def consumeArg(tc):
   t = tc.consume()
-  
+  #print "consume:", t
   if isinstance(t, AtomNode):
-    return t
-  else:
-    print "<consumeArg: returning>"
-    return t
+    val = lookup(t.value)
+    if val is None:
+      return t
+    
+    if isinstance(val, Function):
+      return [t] + consumeArgs(tc, val.arity)
+    # otherwise it's a variable, return its value
+    return val
+    
+  return t
   
 def consumeArgs(tc, arity):
   out = []
   for i in range(arity):
-    out.append(consumeArg(tc))
+    t = consumeArg(tc)
+    if type(t) == list:
+      out.extend(t)
+    else:
+      out.append(t)
   return out
   
 def evalConsumer(tc):
