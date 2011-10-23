@@ -102,7 +102,8 @@ def unbox(x):
   if isinstance(x, Function):
     return x
   
-  print "fixme: shouldn't be here either? (unbox %r)" % x
+  print "<InternalError> fixme: shouldn't be here either? (unbox %r)" % x
+  raise Exception()
   
 def box(x):
   # XXX: if it's already boxed, we'll fall through
@@ -118,8 +119,8 @@ def box(x):
     return x
   if x is None:
     return NilNode()
-  print "fixme: don't know what to box (%r)" % x
-  return None
+  print "<InternalError> fixme: don't know what to box (%r)" % x
+  raise Exception()
   
 def _print(x):
   'string->int'
@@ -241,7 +242,7 @@ def do_call_func(tc, fn):
   #t_in, t_out = sig.split("->")
   #t_in = t_in.split(",")
   print "calling %s with %d args" % (fn.atom, fn.arity)
-  print "tc:", tc.toks[tc.index:]
+  #print "tc:", tc.toks[tc.index:]
   args = evalArgs(tc, fn.arity)
   print "args:", args
   
