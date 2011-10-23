@@ -91,8 +91,8 @@ def unbox(x):
   if isinstance(x, StringNode):
     return x.value
   if isinstance(x, AtomNode):
-    print "fixme: shouldn't be here?"
-    return x.value
+    #print "fixme: shouldn't be here?"
+    raise Exception("<unbox> shouldn't be here (was passed an atom)")
   if isinstance(x, BoolNode):
     return x.value
   if isinstance(x, ListNode):
@@ -102,7 +102,7 @@ def unbox(x):
   if isinstance(x, Function):
     return x
   
-  print "<InternalError> fixme: shouldn't be here either? (unbox %r)" % x
+  raise Exception("<InternalError> fixme: shouldn't be here either? (unbox %r)" % x)
   raise Exception()
   
 def box(x):
@@ -119,8 +119,7 @@ def box(x):
     return x
   if x is None:
     return NilNode()
-  print "<InternalError> fixme: don't know what to box (%r)" % x
-  raise Exception()
+  raise Exception("<InternalError> fixme: don't know what to box (%r)" % x)
   
 def _print(x):
   'string->int'
@@ -262,8 +261,7 @@ def do_lambda(tc):
   
   n = evalArg(tc)
   if not isinstance(n, IntNode):
-    print "<TypeError> first argument to lambda must be an integer"
-    raise Exception()
+    raise Exception("<TypeError> first argument to lambda must be an integer")
   
   args = consumeArgs(tc, n.value)
   body = consumeArgs(tc, 1)
@@ -289,8 +287,7 @@ def evalToken(tc, t):
     # and if it's a function, call it, otherwise return its value.
     val = lookup(t.value)
     if val is None:
-      print "<BindingError> no such binding '%s'" % t.value
-      raise Exception()
+      raise Exception("<BindingError> no such binding '%s'" % t.value)
     
     if isinstance(val, Function):
       # function -- call it
