@@ -270,10 +270,10 @@ def do_lambda(tc):
 
   # create closure to execute function
   def _fn(*fnargs):
-    for arg in args:
-      set(arg.value, StringNode("dicks"))
+    for i,arg in enumerate(args):
+      set(arg.value, fnargs[i])
     print "_fn:"
-    print " ", fnargs
+    _printsym()
     return None
   
   fn = Function("<lambda>", n.value, _fn)
