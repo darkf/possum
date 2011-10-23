@@ -246,9 +246,6 @@ def do_call_func(tc, fn):
   args = evalArgs(tc, fn.arity)
   print "args:", args
   
-  #for arg in args:
-  #  if 
-  
   # unbox args
   args_unboxed = map(unbox, args)
   
@@ -268,9 +265,7 @@ def do_lambda(tc):
     print "<TypeError> first argument to lambda must be an integer"
     raise Exception()
   
-  print "args:", n.value
   args = consumeArgs(tc, n.value)
-  
   body = consumeArgs(tc, 1)
   
   print "def body:", body
@@ -325,7 +320,6 @@ def evalArgs(tc, arity):
 
 def consumeArg(tc):
   t = tc.consume()
-  #print "consume:", t
   if isinstance(t, AtomNode):
     val = lookup(t.value)
     if val is None:
