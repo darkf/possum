@@ -274,7 +274,7 @@ def do_lambda(tc):
   def _fn(*fnargs):
     for i,arg in enumerate(args):
       set(arg.value, fnargs[i])
-    print "_fn:", fnargs
+    print "_fn:", list(fnargs)
     print "body:", body
     return evalTokens(Consumer(body))
   

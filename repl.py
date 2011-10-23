@@ -4,6 +4,7 @@
 #
 # the REPL component of possum
 
+import sys, traceback
 from possum import evalString
 
 def main():
@@ -21,6 +22,7 @@ def main():
       evalString(text)
     except Exception, e:
       print "<error> %r" % e
+      traceback.print_exc(file=sys.stdout)
 
 if __name__ == '__main__':
   main()
