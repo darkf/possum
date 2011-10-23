@@ -125,14 +125,14 @@ def _print(x):
 def _plus(x, y):
   'int,int->int'
   return x + y
-def _minus(x, y):
-  return x - y
-def _cons(x, y):
-  return [x] + [y]
-def _car(x):
-  return x[0]
-def _cdr(x):
-  return x[1]
+def _minus(x, y): return x - y
+def _mul(x, y): return x * y
+def _div(x, y): return x / y
+def _mod(x, y): return x % y
+def _pow(x, y): return x ** y
+def _cons(x, y): return [x] + [y]
+def _car(x): return x[0]
+def _cdr(x): return x[1]
 def _set(x, y):
   global sym_global, callstack
   if len(callstack) > 1:
@@ -185,6 +185,10 @@ class Call:
 sym_global = Environment({"print": Function("print", 1, _print),
        "plus": Function("plus", 2, _plus),
        "minus": Function("minus", 2, _minus),
+       "mul": Function("mul", 2, _mul),
+       "div": Function("div", 2, _div),
+       "mod": Function("mod", 2, _mod),
+       "pow": Function("pow", 2, _pow),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
