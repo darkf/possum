@@ -17,11 +17,8 @@ def main():
     
     try:
       # XXX: need a way to pretty-print values
-      #x = "# %r" % evalString(text)
-      #print x
       evalString(text)
     except Exception, e:
-      print "<error> %r" % e
       traceback.print_exc(file=sys.stdout)
 
 if __name__ == '__main__':
