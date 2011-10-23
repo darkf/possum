@@ -261,21 +261,16 @@ def do_lambda(tc):
   
   args = consumeArgs(tc, n.value)
   body = consumeArgs(tc, 1)
-  
-  print "def body:", body
 
   # create closure to execute function
   def _fn(*fnargs):
     for i,arg in enumerate(args):
       set(arg.value, fnargs[i])
-    print "_fn:", list(fnargs)
-    print "body:", body
     return unbox(evalTokens(Consumer(body)))
   
-  fn = Function("<lambda>", n.value, _fn)
-  return fn
+  return Function("<lambda>", n.value, _fn)
     
-def evalToken(tc):
+def evalArg(tc):
   t = tc.consume()
   
   if isinstance(t, AtomNode):
@@ -301,11 +296,8 @@ def evalTokens(tc):
     t = tc.peek()
     if t is None:
       break
-    r = evalToken(tc)
+    r = evalArg(tc)
   return r
-    
-def evalArg(tc):
-  return evalToken(tc)
     
 def evalArgs(tc, arity):
   out = []
