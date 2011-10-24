@@ -178,7 +178,9 @@ def _lteq(x, y): return x <= y
 def _gteq(x, y): return x >= y
 
 class Environment:
-  def __init__(self, sym={}, prev=None):
+  def __init__(self, sym=None, prev=None):
+    if sym is None:
+      sym = {}
     self.sym = sym
     self.prev = prev
     
