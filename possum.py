@@ -140,6 +140,9 @@ def _set(x, y):
     callstack[-2].env.set(x, box(y))
   else:
     sym_global.set(x, box(y))
+def _setglobal(x, y):
+  global sym_global
+  sym_global.set(x, box(y))
 def _printsym(d=0, sym=None):
   if d == 0:
     print "symbols:"
@@ -156,7 +159,10 @@ def _printsym(d=0, sym=None):
 def _eqp(x, y): return x == y
 def _nilp(x): return x is None
 def _not(x): return not x
+def _or(x, y): return x or y
 def _defp(x): return lookup(x) is not None
+def _pairp(x): return type(x) == list and len(x) == 2
+def _emptyp(x): return type(x) != list or len(x) == 0
 
 def _lt(x, y): return x < y
 def _gt(x, y): return x > y
@@ -202,7 +208,10 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "eq?": Function("eq?", 2, _eqp),
        "nil?": Function("nil?", 1, _nilp),
        "not": Function("not", 1, _not),
+       "or": Function("or", 2, _or),
        "def?": Function("def?", 1, _defp),
+       "pair?": Function("pair?", 1, _pairp),
+       "empty?": Function("empty?", 1, _emptyp),
        "<": Function("<", 2, _lt),
        ">": Function(">", 2, _gt),
        "<=": Function("<=", 2, _lteq),
@@ -211,6 +220,7 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
        "set": Function("set", 2, _set),
+       "setglobal": Function("setglobal", 2, _setglobal),
        "printsym": Function("printsym", 0, _printsym)})
        
 callstack = []
