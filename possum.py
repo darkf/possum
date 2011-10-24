@@ -1,9 +1,9 @@
-# possum lang - v0.01
+# possum lang - v0.02
 # copyright (c) 2011 darkf
 # released under the MIT license
 #
 # meant to be a semi-esoteric language
-# it's basically just a small subset of lisp
+# it's basically just a small subset of a pseudo-lisp
 # with fixed-arity functions and implicit grouping
 #
 # e.g.
@@ -11,8 +11,22 @@
 # is like
 # (print (minus (plus (plus 1 5) 3) 1))
 #
+# here's a more sophisticated example (ported from scheme)
+#
+#  defun list-sum 1 x
+#    cond 3
+#      or nil? x empty? x
+#        0
+#      pair? car x
+#        plus list-sum car x list-sum cdr x
+#      true
+#        plus car x list-sum cdr x
+#        
+#  set "lst" cons 1 cons 2 cons 3 nil
+#  print list-sum lst
+#
+#
 # TODO:
-# - add function definition
 # - make python function definitions infer arity
 # - actually parse strings
 # - add typechecking and signatures
@@ -23,12 +37,6 @@
 # - unit tests
 # - clean up code (heh, yeah right)
 # - document code (hah, hah-hah...)
-#
-# Open questions:
-# - should operators use symbols or names? (e.g. + - / or plus minus div)
-# - should we have an atom quote operator?
-#   (e.g. 'x which returns an atom rather than the value of x)
-#   so we could do stuff like set 'x 5 rather than set "x" 5
 
 # XXX: should be one top-level Node class
 class StringNode:
