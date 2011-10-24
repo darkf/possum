@@ -156,6 +156,7 @@ def _printsym(d=0, sym=None):
 def _eqp(x, y): return x == y
 def _nilp(x): return x is None
 def _not(x): return not x
+def _defp(x): return lookup(x) is not None
 
 def _lt(x, y): return x < y
 def _gt(x, y): return x > y
@@ -201,6 +202,7 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "eq?": Function("eq?", 2, _eqp),
        "nil?": Function("nil?", 1, _nilp),
        "not": Function("not", 1, _not),
+       "def?": Function("def?", 1, _defp),
        "<": Function("<", 2, _lt),
        ">": Function(">", 2, _gt),
        "<=": Function("<=", 2, _lteq),
@@ -295,7 +297,7 @@ def do_defun(tc):
   # form: defun add 2 x y plus x y
   # is like (defun add (x y) (+ x y))
   
-  name = consumeArg(tc)
+  name = tc.consume() # we avoid it being treated as a function application
   n = evalArg(tc)
   
   if not isinstance(n, IntNode):
@@ -304,7 +306,6 @@ def do_defun(tc):
   args = consumeArgs(tc, n.value)
   
   # forward-declare function so that named recursion works
-  print "forward decl:", name.value, "with", n.value
   fn = setglobal(name.value, Function(name.value, n.value, None))
   
   body = consumeArgs(tc, 1)
