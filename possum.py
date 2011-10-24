@@ -284,7 +284,7 @@ def do_case(tc):
   
   n = evalArg(tc)
   if not isinstance(n, IntNode):
-    raise Exception("<TypeError> first argument to cond must be an integer")
+    raise Exception("<TypeError> first argument to case must be an integer")
     
   val = evalArg(tc)
   for i in range(n.value):
@@ -293,7 +293,6 @@ def do_case(tc):
       return evalArg(tc)
       
     t = evalArg(tc)
-      
     if t.value == val.value:
       r = evalArg(tc)
       # consume everything that wasn't matched after this
@@ -303,16 +302,38 @@ def do_case(tc):
       tc.consume() # do nothing with it
       
   return box(None)
+  
+def do_cond(tc):
+  # cond special-form
+  # form: cond 2 nil? x "x = nil" else "x is not nil"
+  
+  n = evalArg(tc)
+  if not isinstance(n, IntNode):
+    raise Exception("<TypeError> first argument to cond must be an integer")
+    
+  for i in range(n.value):
+    if isinstance(tc.peek(), AtomNode) and tc.peek().value == "else":
+      tc.consume()
+      return evalArg(tc)
+      
+    t = evalArg(tc)
+    if t.value: # truthfulness
+      r = evalArg(tc)
+      consumeArgs(tc, (n.value-i)*2)
+      return r
+    else:
+      tc.consume()
+      
+  return box(None)
     
 def evalArg(tc):
   t = tc.consume()
   
   if isinstance(t, AtomNode):
     # evaluate special-forms
-    if t.value == "lambda":
-      return do_lambda(tc)
-    if t.value == "case":
-      return do_case(tc)
+    if t.value == "lambda": return do_lambda(tc)
+    if t.value == "case":   return do_case(tc)
+    if t.value == "cond":   return do_cond(tc)
       
     # we look up the atom in the symbol table,
     # and if it's a function, call it, otherwise return its value.
