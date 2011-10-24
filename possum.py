@@ -135,7 +135,7 @@ def _mul(x, y): return x * y
 def _div(x, y): return x / y
 def _mod(x, y): return x % y
 def _pow(x, y): return x ** y
-def _cons(x, y): return [x] + [y]
+def _cons(x, y): return [x, y] # creates a pair
 def _car(x): return x[0]
 def _cdr(x): return x[1]
 def _set(x, y):
