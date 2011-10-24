@@ -277,10 +277,10 @@ def do_lambda(tc):
   
   return Function("<lambda>", n.value, _fn)
   
-def do_cond(tc):
-  # cond special-form
-  # form: cond 2 value "value one" "you chose value 1" else "you didn't choose 1 or 2"
-  # which is like (cond value ["value one" "you chose value 1"] [else "you didn't choose 1 or 2"])
+def do_case(tc):
+  # case special-form
+  # form: case 2 value "value one" "you chose value 1" else "you didn't choose 1 or 2"
+  # hint: it's like a switch statement
   
   n = evalArg(tc)
   if not isinstance(n, IntNode):
@@ -311,8 +311,8 @@ def evalArg(tc):
     # evaluate special-forms
     if t.value == "lambda":
       return do_lambda(tc)
-    if t.value == "cond":
-      return do_cond(tc)
+    if t.value == "case":
+      return do_case(tc)
       
     # we look up the atom in the symbol table,
     # and if it's a function, call it, otherwise return its value.
