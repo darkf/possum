@@ -54,6 +54,7 @@ class NilNode:
 class AtomNode:
   def __init__(self, value):
     self.value = value
+  def __repr__(self): return "<atom %r>" % self.value
     
 class Function:
   def __init__(self, atom, arity, fn):
@@ -364,11 +365,20 @@ def evalArgs(tc, arity):
     out.append(evalArg(tc))
   return out
 
-def consumeArg(tc):
+def consumeArg(tc, recurse_arity=-1):
   t = tc.consume()
   if isinstance(t, AtomNode):
+    if t.value == "cond":
+      x = [t]
+      n = tc.consume()
+      x.append(n)
+      x.extend(consumeArgs(tc, n.value*2))
+      return x
     val = lookup(t.value)
     if val is None:
+      #if t.value == recurse_atom:
+      #  # we're recursing, so infer arity from the definition
+      #  return [t] + consumeArgs(tc, recurse_arity)
       # not a known function, so assume it's not one and return the atom
       return t
     
