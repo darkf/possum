@@ -128,12 +128,8 @@ def box(x):
     return NilNode()
   raise Exception("<InternalError> fixme: don't know what to box (%r)" % x)
   
-def _print(x):
-  'string->int'
-  print ":", x
-def _plus(x, y):
-  'int,int->int'
-  return x + y
+def _print(x): print ":", x
+def _plus(x, y): return x + y
 def _minus(x, y): return x - y
 def _mul(x, y): return x * y
 def _div(x, y): return x / y
@@ -278,10 +274,6 @@ class Consumer:
     return r
     
 def do_call_func(tc, fn):
-  # XXX: typechecking stuff if necessary
-  #sig = fn.fn.__doc__
-  #t_in, t_out = sig.split("->")
-  #t_in = t_in.split(",")
   #print "calling %s with %d args" % (fn.atom, fn.arity)
   args = evalArgs(tc, fn.arity)
   
