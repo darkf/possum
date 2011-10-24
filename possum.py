@@ -152,7 +152,10 @@ def _printsym(d=0, sym=None):
   
   if sym.prev is not None:
     _printsym(d+1, sym.prev)
-  
+def _eqp(x, y): return x == y
+def _nilp(x): return x is None
+def _not(x): return not x
+
 class Environment:
   def __init__(self, sym={}, prev=None):
     self.sym = sym
@@ -189,6 +192,9 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "div": Function("div", 2, _div),
        "mod": Function("mod", 2, _mod),
        "pow": Function("pow", 2, _pow),
+       "eq?": Function("eq?", 2, _eqp),
+       "nil?": Function("nil?", 1, _nilp),
+       "not": Function("not", 1, _not),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
