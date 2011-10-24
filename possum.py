@@ -157,6 +157,11 @@ def _eqp(x, y): return x == y
 def _nilp(x): return x is None
 def _not(x): return not x
 
+def _lt(x, y): return x < y
+def _gt(x, y): return x > y
+def _lteq(x, y): return x <= y
+def _gteq(x, y): return x >= y
+
 class Environment:
   def __init__(self, sym={}, prev=None):
     self.sym = sym
@@ -196,6 +201,10 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "eq?": Function("eq?", 2, _eqp),
        "nil?": Function("nil?", 1, _nilp),
        "not": Function("not", 1, _not),
+       "<": Function("<", 2, _lt),
+       ">": Function(">", 2, _gt),
+       "<=": Function("<=", 2, _lteq),
+       ">=": Function(">=", 2, _gteq),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
@@ -209,6 +218,9 @@ def lookup(sym):
   
 def set(sym, val):
   return peekCallEnv().set(sym, val)
+  
+def setglobal(sym, val):
+  return sym_global.set(sym, val)
   
 def pushCall(call):
   global callstack
@@ -278,6 +290,34 @@ def do_lambda(tc):
   
   return Function("<lambda>", n.value, _fn)
   
+def do_defun(tc):
+  # defun special form
+  # form: defun add 2 x y plus x y
+  # is like (defun add (x y) (+ x y))
+  
+  name = consumeArg(tc)
+  n = evalArg(tc)
+  
+  if not isinstance(n, IntNode):
+    raise Exception("<TypeError> second argument to defun must be an integer")
+    
+  args = consumeArgs(tc, n.value)
+  
+  # forward-declare function so that named recursion works
+  print "forward decl:", name.value, "with", n.value
+  fn = setglobal(name.value, Function(name.value, n.value, None))
+  
+  body = consumeArgs(tc, 1)
+  
+  # create closure to execute function
+  def _fn(*fnargs):
+    for i,arg in enumerate(args):
+      set(arg.value, box(fnargs[i]))
+    return unbox(evalTokens(Consumer(body)))
+    
+  fn.fn = _fn
+  return box(None)
+  
 def do_case(tc):
   # case special-form
   # form: case 2 value "value one" "you chose value 1" else "you didn't choose 1 or 2"
@@ -335,6 +375,7 @@ def evalArg(tc):
     if t.value == "lambda": return do_lambda(tc)
     if t.value == "case":   return do_case(tc)
     if t.value == "cond":   return do_cond(tc)
+    if t.value == "defun":  return do_defun(tc)
       
     # we look up the atom in the symbol table,
     # and if it's a function, call it, otherwise return its value.
@@ -376,9 +417,6 @@ def consumeArg(tc, recurse_arity=-1):
       return x
     val = lookup(t.value)
     if val is None:
-      #if t.value == recurse_atom:
-      #  # we're recursing, so infer arity from the definition
-      #  return [t] + consumeArgs(tc, recurse_arity)
       # not a known function, so assume it's not one and return the atom
       return t
     
