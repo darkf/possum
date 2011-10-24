@@ -168,6 +168,7 @@ def _eqp(x, y): return x == y
 def _nilp(x): return x is None
 def _not(x): return not x
 def _or(x, y): return x or y
+def _and(x, y): return x and y
 def _defp(x): return lookup(x) is not None
 def _pairp(x): return type(x) == list and len(x) == 2
 def _emptyp(x): return type(x) != list or len(x) == 0
@@ -219,6 +220,7 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "nil?": Function("nil?", 1, _nilp),
        "not": Function("not", 1, _not),
        "or": Function("or", 2, _or),
+       "and": Function("and", 2, _and),
        "def?": Function("def?", 1, _defp),
        "pair?": Function("pair?", 1, _pairp),
        "empty?": Function("empty?", 1, _emptyp),
