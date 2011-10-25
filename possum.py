@@ -92,16 +92,15 @@ def unbox(x):
   raise Exception("<InternalError> fixme: shouldn't be here either? (unbox %r)" % x)
   
 def box(x):
-  # XXX: if it's already boxed, we'll fall through
   if type(x) == int:  return IntNode(x)
   if type(x) == str:  return StringNode(x)
   if type(x) == bool: return BoolNode(x)
   if type(x) == list: return ListNode(x)
+  if x is None:       return NilNode()
   
-  if isinstance(x, Function):
-    return x
-  if x is None:
-    return NilNode()
+  if isinstance(x, Node):     return x
+  if isinstance(x, Function): return x
+  
   raise Exception("<InternalError> fixme: don't know what to box (%r)" % x)
   
 def _print(x): print ":", x
