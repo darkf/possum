@@ -38,30 +38,19 @@
 # - clean up code (heh, yeah right)
 # - document code (hah, hah-hah...)
 
-# XXX: should be one top-level Node class
-class StringNode:
+class Node:
   def __init__(self, value):
     self.value = value
-    
-class IntNode:
-  def __init__(self, value):
-    self.value = value
-    
-class BoolNode:
-  def __init__(self, value):
-    self.value = value
-    
-class ListNode:
-  def __init__(self, value):
-    self.value = value
-    
-class NilNode:
-  def __init__(self):
-    self.value = None
-    
-class AtomNode:
-  def __init__(self, value):
-    self.value = value
+
+class StringNode(Node): pass
+class IntNode(Node):    pass
+class BoolNode(Node):   pass
+class ListNode(Node):   pass
+
+class NilNode(Node):
+  def __init__(self): self.value = None
+
+class AtomNode(Node):
   def __repr__(self): return "<atom %r>" % self.value
     
 class Function:
@@ -95,17 +84,7 @@ def isbool(x):
   return x.lower() == "true" or x.lower() == "false"
   
 def unbox(x):
-  if isinstance(x, IntNode):
-    return x.value
-  if isinstance(x, StringNode):
-    return x.value
-  if isinstance(x, AtomNode):
-    raise Exception("<unbox> shouldn't be here (was passed an atom)")
-  if isinstance(x, BoolNode):
-    return x.value
-  if isinstance(x, ListNode):
-    return x.value
-  if isinstance(x, NilNode):
+  if isinstance(x, Node):
     return x.value
   if isinstance(x, Function):
     return x
@@ -114,14 +93,11 @@ def unbox(x):
   
 def box(x):
   # XXX: if it's already boxed, we'll fall through
-  if type(x) == int:
-    return IntNode(x)
-  if type(x) == str:
-    return StringNode(x)
-  if type(x) == bool:
-    return BoolNode(x)
-  if type(x) == list:
-    return ListNode(x)
+  if type(x) == int:  return IntNode(x)
+  if type(x) == str:  return StringNode(x)
+  if type(x) == bool: return BoolNode(x)
+  if type(x) == list: return ListNode(x)
+  
   if isinstance(x, Function):
     return x
   if x is None:
