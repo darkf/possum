@@ -356,16 +356,20 @@ def do_cond(tc):
       tc.consume()
       
   return box(None)
+  
+  
+special_forms = {"lambda": do_lambda,
+                 "case": do_case,
+                 "cond": do_cond,
+                 "defun": do_defun}
     
 def evalArg(tc):
   t = tc.consume()
   
   if isinstance(t, AtomNode):
     # evaluate special-forms
-    if t.value == "lambda": return do_lambda(tc)
-    if t.value == "case":   return do_case(tc)
-    if t.value == "cond":   return do_cond(tc)
-    if t.value == "defun":  return do_defun(tc)
+    if t.value in special_forms:
+      return special_forms[t.value](tc)
       
     # we look up the atom in the symbol table,
     # and if it's a function, call it, otherwise return its value.
@@ -396,7 +400,7 @@ def evalArgs(tc, arity):
     out.append(evalArg(tc))
   return out
 
-def consumeArg(tc, recurse_arity=-1):
+def consumeArg(tc):
   t = tc.consume()
   if isinstance(t, AtomNode):
     if t.value == "cond":
