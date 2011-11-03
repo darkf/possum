@@ -42,9 +42,12 @@ class Node:
   def __init__(self, value):
     self.value = value
 
-class StringNode(Node): pass
-class IntNode(Node):    pass
-class BoolNode(Node):   pass
+class StringNode(Node):
+    def __repr__(self): return "<str %r>" % self.value
+class IntNode(Node):
+    def __repr__(self): return "<int %d>" % self.value
+class BoolNode(Node):
+    def __repr__(self): return "<bool %r>" % self.value
 class ListNode(Node):   pass
 
 class NilNode(Node):
@@ -348,13 +351,13 @@ def do_cond(tc):
       return evalArg(tc)
       
     t = evalArg(tc)
-    if t.value: # truthfulness
+    if t.value == True: # truthfulness
       r = evalArg(tc)
       consumeArgs(tc, (n.value-i)*2)
       return r
     else:
-      tc.consume()
-      
+      consumeArg(tc) # it's false, so consume the body
+
   return box(None)
   
   
@@ -432,6 +435,7 @@ def consumeArgs(tc, arity):
   return out
   
 def evalConsumer(tc):
+  # one-liner: return [evalArg(tc) for t in xrange(len(tc.toks)-tc.index)][-1]
   r = None
   
   while True:
