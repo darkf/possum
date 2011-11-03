@@ -333,7 +333,7 @@ def do_case(tc):
       consumeArgs(tc, (n.value-i)*2)
       return r
     else:
-      tc.consume() # do nothing with it
+      consumeArg(tc) # do nothing with it
       
   return box(None)
   
