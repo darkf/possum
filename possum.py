@@ -375,9 +375,24 @@ def do_setglobal(tc):
   
   return sym_global.set(atom.value, value)
   
+def do_begin(tc):
+  # begin special form
+  # form: begin 2
+  #         print "foo"
+  #         print "bar"
   
+  n = evalArg(tc)
+  if not isinstance(n, IntNode):
+    raise Exception("<TypeError> first argument to begin must be an integer")
+    
+  r = box(None)
+  for i in range(n.value):
+    r = evalArg(tc)
+  return r
+    
 special_forms = {"set": do_set,
                  "setglobal": do_setglobal,
+                 "begin": do_begin,
                  "lambda": do_lambda,
                  "case": do_case,
                  "cond": do_cond,
