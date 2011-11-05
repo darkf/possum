@@ -152,6 +152,8 @@ def _gt(x, y): return x > y
 def _lteq(x, y): return x <= y
 def _gteq(x, y): return x >= y
 
+def _include(file): return evalFile(file)
+
 class Environment:
   def __init__(self, sym=None, prev=None):
     if sym is None:
@@ -184,6 +186,7 @@ class Call:
     self.env = Environment(locals, prev=sym_global)
 
 sym_global = Environment({"print": Function("print", 1, _print),
+       "include": Function("include", 1, _include),
        "plus": Function("plus", 2, _plus),
        "minus": Function("minus", 2, _minus),
        "mul": Function("mul", 2, _mul),
