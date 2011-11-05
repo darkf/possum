@@ -1,5 +1,6 @@
 import sys
 from possum import evalFile, unbox
+import fileio
 
 def main():
   if len(sys.argv) < 2:
