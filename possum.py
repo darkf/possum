@@ -116,12 +116,6 @@ def _pow(x, y): return x ** y
 def _cons(x, y): return [x, y] # creates a pair
 def _car(x): return x[0]
 def _cdr(x): return x[1]
-def _set(x, y):
-  global sym_global, callstack
-  if len(callstack) > 1:
-    callstack[-2].env.set(x, box(y))
-  else:
-    sym_global.set(x, box(y))
 def _setglobal(x, y):
   global sym_global
   sym_global.set(x, box(y))
@@ -208,7 +202,6 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
-       "set": Function("set", 2, _set),
        "setglobal": Function("setglobal", 2, _setglobal),
        "printsym": Function("printsym", 0, _printsym)})
        
@@ -363,8 +356,22 @@ def do_cond(tc):
 
   return box(None)
   
+def do_set(tc):
+  # set special form
+  # form: set x 123
+  global sym_global, callstack
   
-special_forms = {"lambda": do_lambda,
+  atom = consumeArg(tc)
+  value = evalArg(tc)
+  
+  if len(callstack) > 1:
+    return callstack[-2].env.set(atom.value, value)
+  
+  return sym_global.set(atom.value, value)
+  
+  
+special_forms = {"set": do_set,
+                 "lambda": do_lambda,
                  "case": do_case,
                  "cond": do_cond,
                  "defun": do_defun}
