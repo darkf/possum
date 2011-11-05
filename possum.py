@@ -58,7 +58,6 @@ class AtomNode(Node):
     
 class Function:
   def __init__(self, atom, arity, fn):
-    self.atom = atom
     self.arity = arity
     self.fn = fn
 
@@ -80,11 +79,8 @@ def parse(text):
           out.append(AtomNode(t))
   return out
   
-def parsebool(x):
-  return x.lower() == "true"
-  
-def isbool(x):
-  return x.lower() == "true" or x.lower() == "false"
+def parsebool(x): return x.lower() == "true"
+def isbool(x):    return x.lower() == "true" or x.lower() == "false"
   
 def unbox(x):
   if isinstance(x, Node):
@@ -107,15 +103,6 @@ def box(x):
   raise Exception("<InternalError> fixme: don't know what to box (%r)" % x)
   
 def _print(x): print ":", x
-def _plus(x, y): return x + y
-def _minus(x, y): return x - y
-def _mul(x, y): return x * y
-def _div(x, y): return x / y
-def _mod(x, y): return x % y
-def _pow(x, y): return x ** y
-def _cons(x, y): return [x, y] # creates a pair
-def _car(x): return x[0]
-def _cdr(x): return x[1]
 def _printsym(d=0, sym=None):
   if d == 0:
     print "symbols:"
@@ -129,21 +116,6 @@ def _printsym(d=0, sym=None):
   
   if sym.prev is not None:
     _printsym(d+1, sym.prev)
-def _eqp(x, y): return x == y
-def _nilp(x): return x is None
-def _not(x): return not x
-def _or(x, y): return x or y
-def _and(x, y): return x and y
-def _defp(x): return lookup(x) is not None
-def _pairp(x): return type(x) == list and len(x) == 2
-def _emptyp(x): return type(x) != list or len(x) == 0
-
-def _lt(x, y): return x < y
-def _gt(x, y): return x > y
-def _lteq(x, y): return x <= y
-def _gteq(x, y): return x >= y
-
-def _include(file): return evalFile(file)
 
 class Environment:
   def __init__(self, sym=None, prev=None):
@@ -177,29 +149,30 @@ class Call:
     self.env = Environment(locals, prev=sym_global)
 
 sym_global = Environment({"print": Function("print", 1, _print),
-       "include": Function("include", 1, _include),
-       "plus": Function("plus", 2, _plus),
-       "minus": Function("minus", 2, _minus),
-       "mul": Function("mul", 2, _mul),
-       "div": Function("div", 2, _div),
-       "mod": Function("mod", 2, _mod),
-       "pow": Function("pow", 2, _pow),
-       "eq?": Function("eq?", 2, _eqp),
-       "nil?": Function("nil?", 1, _nilp),
-       "not": Function("not", 1, _not),
-       "or": Function("or", 2, _or),
-       "and": Function("and", 2, _and),
-       "def?": Function("def?", 1, _defp),
-       "pair?": Function("pair?", 1, _pairp),
-       "empty?": Function("empty?", 1, _emptyp),
-       "<": Function("<", 2, _lt),
-       ">": Function(">", 2, _gt),
-       "<=": Function("<=", 2, _lteq),
-       ">=": Function(">=", 2, _gteq),
-       "cons": Function("cons", 2, _cons),
-       "car": Function("car", 1, _car),
-       "cdr": Function("cdr", 1, _cdr),
+       "include": Function("include", 1, lambda x: evalFile(x)),
+       "plus": Function("plus", 2, lambda x,y: x + y),
+       "minus": Function("minus", 2, lambda x,y: x - y),
+       "mul": Function("mul", 2, lambda x,y: x * y),
+       "div": Function("div", 2, lambda x,y: x / y),
+       "mod": Function("mod", 2, lambda x,y: x % y),
+       "pow": Function("pow", 2, lambda x,y: x ** y),
+       "eq?": Function("eq?", 2, lambda x,y: x == y),
+       "nil?": Function("nil?", 1, lambda x: x is None),
+       "not": Function("not", 1, lambda x: not x),
+       "or": Function("or", 2, lambda x,y: x or y),
+       "and": Function("and", 2, lambda x,y: x and y),
+       "def?": Function("def?", 1, lambda x: lookup(x) is not None),
+       "pair?": Function("pair?", 1, lambda x: type(x) == list and len(x) == 2),
+       "empty?": Function("empty?", 1, lambda x: type(x) != list or len(x) == 0),
+       "<": Function("<", 2, lambda x,y: x < y),
+       ">": Function(">", 2, lambda x,y: x > y),
+       "<=": Function("<=", 2, lambda x,y: x <= y),
+       ">=": Function(">=", 2, lambda x,y: x >= y),
+       "cons": Function("cons", 2, lambda x,y: [x, y]), # creates a pair
+       "car": Function("car", 1, lambda x: x[0]),
+       "cdr": Function("cdr", 1, lambda x: x[1]),
        "printsym": Function("printsym", 0, _printsym)})
+
        
 callstack = []
 
