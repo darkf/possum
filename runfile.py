@@ -7,9 +7,6 @@ def main():
     print "usage: %s FILE...[FILE2]" % sys.argv[0]
     return
     
-  files = sys.argv[1:]
-  
-  for file in files:
-    r = unbox(evalFile(file))
+  map(evalFile, sys.argv[1:])
       
 if __name__ == '__main__': main()
