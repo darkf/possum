@@ -116,9 +116,6 @@ def _pow(x, y): return x ** y
 def _cons(x, y): return [x, y] # creates a pair
 def _car(x): return x[0]
 def _cdr(x): return x[1]
-def _setglobal(x, y):
-  global sym_global
-  sym_global.set(x, box(y))
 def _printsym(d=0, sym=None):
   if d == 0:
     print "symbols:"
@@ -202,7 +199,6 @@ sym_global = Environment({"print": Function("print", 1, _print),
        "cons": Function("cons", 2, _cons),
        "car": Function("car", 1, _car),
        "cdr": Function("cdr", 1, _cdr),
-       "setglobal": Function("setglobal", 2, _setglobal),
        "printsym": Function("printsym", 0, _printsym)})
        
 callstack = []
@@ -369,8 +365,19 @@ def do_set(tc):
   
   return sym_global.set(atom.value, value)
   
+def do_setglobal(tc):
+  # setglobal special form
+  # form: setgloal x 123
+  global sym_global
+  
+  atom = consumeArg(tc)
+  value = evalArg(tc)
+  
+  return sym_global.set(atom.value, value)
+  
   
 special_forms = {"set": do_set,
+                 "setglobal": do_setglobal,
                  "lambda": do_lambda,
                  "case": do_case,
                  "cond": do_cond,
