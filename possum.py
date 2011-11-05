@@ -447,3 +447,6 @@ def evalConsumer(tc):
   
 def evalString(text):
   return evalConsumer(Consumer(parse(text)))
+  
+def evalFile(filename):
+  return evalString(open(filename, "r").read())

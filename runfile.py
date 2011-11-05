@@ -1,5 +1,5 @@
 import sys
-from possum import evalString
+from possum import evalFile, unbox
 
 def main():
   if len(sys.argv) < 2:
@@ -9,12 +9,6 @@ def main():
   files = sys.argv[1:]
   
   for file in files:
-    f = open(file, "r")
-    try:
-      evalString(f.read())
-    except:
-      raise
-    finally:
-      f.close()
+    r = unbox(evalFile(file))
       
 if __name__ == '__main__': main()
