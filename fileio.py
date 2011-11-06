@@ -31,8 +31,8 @@ def _file_close(fd):
   fds[fd].close()
   del fds[fd]
   
-setglobal("file-open", Function(2, _file_open))
-setglobal("file-read", Function(2, _file_read))
-setglobal("file-readall", Function(1, _file_readall))
-setglobal("file-write", Function(2, _file_write))
-setglobal("file-close", Function(1, _file_close))
+setglobal("file-open", Function(_file_open))
+setglobal("file-read", Function(_file_read))
+setglobal("file-readall", Function(_file_readall))
+setglobal("file-write", Function(_file_write))
+setglobal("file-close", Function(_file_close))

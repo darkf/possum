@@ -27,7 +27,6 @@
 #
 #
 # TODO:
-# - make python function definitions infer arity
 # - actually parse strings
 # - add typechecking and signatures
 # - diagnostics
@@ -37,6 +36,8 @@
 # - unit tests
 # - clean up code (heh, yeah right)
 # - document code (hah, hah-hah...)
+
+import inspect
 
 class Node:
   def __init__(self, value):
@@ -57,7 +58,9 @@ class AtomNode(Node):
   def __repr__(self): return "<atom %r>" % self.value
     
 class Function:
-  def __init__(self, arity, fn):
+  def __init__(self, fn, arity=None):
+    if arity is None:
+      arity = len(inspect.getargspec(fn)[0])
     self.arity = arity
     self.fn = fn
 
@@ -148,30 +151,30 @@ class Call:
       locals = {}
     self.env = Environment(locals, prev=sym_global)
 
-sym_global = Environment({"print": Function(1, _print),
-       "include": Function(1, lambda x: evalFile(x)),
-       "plus": Function(2, lambda x,y: x + y),
-       "minus": Function(2, lambda x,y: x - y),
-       "mul": Function(2, lambda x,y: x * y),
-       "div": Function(2, lambda x,y: x / y),
-       "mod": Function(2, lambda x,y: x % y),
-       "pow": Function(2, lambda x,y: x ** y),
-       "eq?": Function(2, lambda x,y: x == y),
-       "nil?": Function(1, lambda x: x is None),
-       "not": Function(1, lambda x: not x),
-       "or": Function(2, lambda x,y: x or y),
-       "and": Function(2, lambda x,y: x and y),
-       "def?": Function(1, lambda x: lookup(x) is not None),
-       "pair?": Function(1, lambda x: type(x) == list and len(x) == 2),
-       "empty?": Function(1, lambda x: type(x) != list or len(x) == 0),
-       "<": Function(2, lambda x,y: x < y),
-       ">": Function(2, lambda x,y: x > y),
-       "<=": Function(2, lambda x,y: x <= y),
-       ">=": Function(2, lambda x,y: x >= y),
-       "cons": Function(2, lambda x,y: [x, y]), # creates a pair
-       "car": Function(1, lambda x: x[0]),
-       "cdr": Function(1, lambda x: x[1]),
-       "printsym": Function(0, _printsym)})
+sym_global = Environment({"print": Function(_print),
+       "include": Function(lambda x: evalFile(x)),
+       "plus": Function(lambda x,y: x + y),
+       "minus": Function(lambda x,y: x - y),
+       "mul": Function(lambda x,y: x * y),
+       "div": Function(lambda x,y: x / y),
+       "mod": Function(lambda x,y: x % y),
+       "pow": Function(lambda x,y: x ** y),
+       "eq?": Function(lambda x,y: x == y),
+       "nil?": Function(lambda x: x is None),
+       "not": Function(lambda x: not x),
+       "or": Function(lambda x,y: x or y),
+       "and": Function(lambda x,y: x and y),
+       "def?": Function(lambda x: lookup(x) is not None),
+       "pair?": Function(lambda x: type(x) == list and len(x) == 2),
+       "empty?": Function(lambda x: type(x) != list or len(x) == 0),
+       "<": Function(lambda x,y: x < y),
+       ">": Function(lambda x,y: x > y),
+       "<=": Function(lambda x,y: x <= y),
+       ">=": Function(lambda x,y: x >= y),
+       "cons": Function(lambda x,y: [x, y]), # creates a pair
+       "car": Function(lambda x: x[0]),
+       "cdr": Function(lambda x: x[1]),
+       "printsym": Function(_printsym)})
 
        
 callstack = []
@@ -263,7 +266,7 @@ def do_defun(tc):
   args = consumeArgs(tc, n.value)
   
   # forward-declare function so that named recursion works
-  fn = setglobal(name.value, Function(n.value, None))
+  fn = setglobal(name.value, Function(None, arity=n.value))
   
   body = consumeArgs(tc, 1)
   

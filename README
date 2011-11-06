@@ -27,7 +27,6 @@ here's a more sophisticated example (ported from scheme)
 
 
 TODO:
-- make python function definitions infer arity
 - actually parse strings
 - add typechecking and signatures
 - diagnostics
