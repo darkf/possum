@@ -57,7 +57,7 @@ class AtomNode(Node):
   def __repr__(self): return "<atom %r>" % self.value
     
 class Function:
-  def __init__(self, atom, arity, fn):
+  def __init__(self, arity, fn):
     self.arity = arity
     self.fn = fn
 
@@ -148,30 +148,30 @@ class Call:
       locals = {}
     self.env = Environment(locals, prev=sym_global)
 
-sym_global = Environment({"print": Function("print", 1, _print),
-       "include": Function("include", 1, lambda x: evalFile(x)),
-       "plus": Function("plus", 2, lambda x,y: x + y),
-       "minus": Function("minus", 2, lambda x,y: x - y),
-       "mul": Function("mul", 2, lambda x,y: x * y),
-       "div": Function("div", 2, lambda x,y: x / y),
-       "mod": Function("mod", 2, lambda x,y: x % y),
-       "pow": Function("pow", 2, lambda x,y: x ** y),
-       "eq?": Function("eq?", 2, lambda x,y: x == y),
-       "nil?": Function("nil?", 1, lambda x: x is None),
-       "not": Function("not", 1, lambda x: not x),
-       "or": Function("or", 2, lambda x,y: x or y),
-       "and": Function("and", 2, lambda x,y: x and y),
-       "def?": Function("def?", 1, lambda x: lookup(x) is not None),
-       "pair?": Function("pair?", 1, lambda x: type(x) == list and len(x) == 2),
-       "empty?": Function("empty?", 1, lambda x: type(x) != list or len(x) == 0),
-       "<": Function("<", 2, lambda x,y: x < y),
-       ">": Function(">", 2, lambda x,y: x > y),
-       "<=": Function("<=", 2, lambda x,y: x <= y),
-       ">=": Function(">=", 2, lambda x,y: x >= y),
-       "cons": Function("cons", 2, lambda x,y: [x, y]), # creates a pair
-       "car": Function("car", 1, lambda x: x[0]),
-       "cdr": Function("cdr", 1, lambda x: x[1]),
-       "printsym": Function("printsym", 0, _printsym)})
+sym_global = Environment({"print": Function(1, _print),
+       "include": Function(1, lambda x: evalFile(x)),
+       "plus": Function(2, lambda x,y: x + y),
+       "minus": Function(2, lambda x,y: x - y),
+       "mul": Function(2, lambda x,y: x * y),
+       "div": Function(2, lambda x,y: x / y),
+       "mod": Function(2, lambda x,y: x % y),
+       "pow": Function(2, lambda x,y: x ** y),
+       "eq?": Function(2, lambda x,y: x == y),
+       "nil?": Function(1, lambda x: x is None),
+       "not": Function(1, lambda x: not x),
+       "or": Function(2, lambda x,y: x or y),
+       "and": Function(2, lambda x,y: x and y),
+       "def?": Function(1, lambda x: lookup(x) is not None),
+       "pair?": Function(1, lambda x: type(x) == list and len(x) == 2),
+       "empty?": Function(1, lambda x: type(x) != list or len(x) == 0),
+       "<": Function(2, lambda x,y: x < y),
+       ">": Function(2, lambda x,y: x > y),
+       "<=": Function(2, lambda x,y: x <= y),
+       ">=": Function(2, lambda x,y: x >= y),
+       "cons": Function(2, lambda x,y: [x, y]), # creates a pair
+       "car": Function(1, lambda x: x[0]),
+       "cdr": Function(1, lambda x: x[1]),
+       "printsym": Function(0, _printsym)})
 
        
 callstack = []
@@ -247,7 +247,7 @@ def do_lambda(tc):
       set(arg.value, box(fnargs[i]))
     return unbox(evalTokens(Consumer(body)))
   
-  return Function("<lambda>", n.value, _fn)
+  return Function(n.value, _fn)
   
 def do_defun(tc):
   # defun special form
@@ -263,7 +263,7 @@ def do_defun(tc):
   args = consumeArgs(tc, n.value)
   
   # forward-declare function so that named recursion works
-  fn = setglobal(name.value, Function(name.value, n.value, None))
+  fn = setglobal(name.value, Function(n.value, None))
   
   body = consumeArgs(tc, 1)
   
