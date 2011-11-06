@@ -1,4 +1,4 @@
-# possum lang - v0.02
+# possum lang - v0.03
 # copyright (c) 2011 darkf
 # released under the MIT license
 #
@@ -220,7 +220,6 @@ class Consumer:
     return r
     
 def do_call_func(tc, fn):
-  #print "calling %s with %d args" % (fn.atom, fn.arity)
   args = evalArgs(tc, fn.arity)
   
   # unbox args
@@ -232,10 +231,8 @@ def do_call_func(tc, fn):
   return r
   
 def do_lambda(tc):
-  # hit a lambda special-form
-  # form: lambda 2 x y * x y
-  # which is the same as the s-expr (lambda (x y) (* x y))
-  # (2 is the number of arguments to consume)
+  # hit a lambda special form
+  # form: lambda 2 x y mul x y
   
   n = evalArg(tc)
   if not isinstance(n, IntNode):
@@ -280,9 +277,8 @@ def do_defun(tc):
   return box(None)
   
 def do_case(tc):
-  # case special-form
+  # case special form
   # form: case 2 value "value one" "you chose value 1" else "you didn't choose 1 or 2"
-  # hint: it's like a switch statement
   
   n = evalArg(tc)
   if not isinstance(n, IntNode):
@@ -306,7 +302,7 @@ def do_case(tc):
   return box(None)
   
 def do_cond(tc):
-  # cond special-form
+  # cond special form
   # form: cond 2 nil? x "x = nil" else "x is not nil"
   
   n = evalArg(tc)
