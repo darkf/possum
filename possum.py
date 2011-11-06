@@ -174,8 +174,7 @@ sym_global = Environment({"print": Function(_print),
        "cons": Function(lambda x,y: [x, y]), # creates a pair
        "car": Function(lambda x: x[0]),
        "cdr": Function(lambda x: x[1]),
-       "printsym": Function(_printsym)})
-
+       "printsym": Function(_printsym, arity=0)})
        
 callstack = []
 
