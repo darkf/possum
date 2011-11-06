@@ -144,7 +144,6 @@ class Environment:
     
 class Call:
   def __init__(self, fun, args, locals=None):
-    global sym_global
     self.fun = fun
     self.args = args
     if locals is None:
@@ -188,15 +187,12 @@ def setglobal(sym, val):
   return sym_global.set(sym, val)
   
 def pushCall(call):
-  global callstack
   callstack.append(call)
   
 def popCallEnv():
-  global callstack
   return callstack.pop().env
   
 def peekCallEnv():
-  global callstack, sym_global
   if len(callstack) >  0:
     return callstack[-1].env
   return sym_global
@@ -326,8 +322,7 @@ def do_cond(tc):
 def do_set(tc):
   # set special form
   # form: set x 123
-  global sym_global, callstack
-  
+
   atom = consumeArg(tc)
   value = evalArg(tc)
   
@@ -339,8 +334,7 @@ def do_set(tc):
 def do_setglobal(tc):
   # setglobal special form
   # form: setgloal x 123
-  global sym_global
-  
+
   atom = consumeArg(tc)
   value = evalArg(tc)
   
